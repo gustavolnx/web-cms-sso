@@ -87,8 +87,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: false, // Definindo como false para permitir tanto HTTP quanto HTTPS
       maxAge: 24 * 60 * 60 * 1000, // 24 horas
+      sameSite: "lax", // Permite que o cookie seja enviado em redirecionamentos
     },
   })
 );
