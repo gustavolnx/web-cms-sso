@@ -4,6 +4,7 @@
   "description": "Sistema de gerenciamento de conteúdo para o player Gustavo",
   "main": "src/server.js",
   "scripts": {
+    "restart": "kill $(lsof -t -i:3001) && node src/server.js",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "init-db": "node src/config/init-db.js",
