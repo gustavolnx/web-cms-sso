@@ -56,7 +56,7 @@ async function checkPlayersStatus() {
 // Configuração do middleware
 app.use(
   cors({
-    origin: ["http://177.71.165.181", "http://localhost"],
+    origin: "*", // Permitindo acesso de qualquer origem
     credentials: true,
   })
 );
