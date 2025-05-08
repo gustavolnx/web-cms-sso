@@ -3,6 +3,7 @@ const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const Group = require("../models/group.model");
+const axios = require("axios");
 
 // Carrega as variáveis de ambiente
 dotenv.config();
@@ -31,9 +32,16 @@ const initiateLogin = (req, res, next) => {
  * Processa o retorno da autenticação SAML (callback)
  */
 const handleCallback = (req, res, next) => {
+  console.log("========== DEBUG SAML Callback ==========");
+  console.log("Recebida resposta SAML");
+  console.log("Método:", req.method);
+  console.log("URL:", req.originalUrl);
+  console.log("Tem SAMLResponse:", !!req.body.SAMLResponse);
+
   // Verifica se é uma resposta do simulador local de IdP
   if (req.body.SAMLResponse && req.body.SAMLResponse.startsWith("eyJ")) {
     try {
+      console.log("Detectada resposta do simulador local");
       // Decodifica a resposta simulada (base64)
       const simulatedData = JSON.parse(atob(req.body.SAMLResponse));
 
@@ -45,7 +53,7 @@ const handleCallback = (req, res, next) => {
         group: simulatedData.grupo,
       };
 
-      console.log("Usando dados do simulador de IdP:", profile);
+      console.log("Dados do simulador de IdP:", profile);
 
       // Continua o fluxo com os dados simulados
       processUserProfile(req, res, null, profile);
@@ -53,17 +61,28 @@ const handleCallback = (req, res, next) => {
     } catch (error) {
       console.error("Erro ao processar dados do simulador de IdP:", error);
       req.flash("error", "Erro ao processar dados do simulador");
+      console.log(
+        "========== FIM DEBUG SAML Callback (erro simulador) =========="
+      );
       return res.redirect("/auth/login");
     }
   }
 
+  console.log("Processando resposta SAML padrão");
   // Caso não seja do simulador, continua com o processamento normal SAML
   passport.authenticate("saml", async (err, profile, info) => {
+    console.log("Callback do passport.authenticate SAML");
+    console.log("Erro:", err ? "Sim" : "Não");
+    console.log("Perfil:", profile ? "Recebido" : "Não recebido");
+
     try {
       processUserProfile(req, res, err, profile, info);
     } catch (error) {
       console.error("Erro no processamento da autenticação:", error);
       req.flash("error", "Erro interno durante autenticação");
+      console.log(
+        "========== FIM DEBUG SAML Callback (erro autenticação) =========="
+      );
       return res.redirect("/auth/login");
     }
   })(req, res, next);
@@ -73,57 +92,112 @@ const handleCallback = (req, res, next) => {
  * Função auxiliar para processar o perfil do usuário e fazer login
  */
 const processUserProfile = async (req, res, err, profile, info) => {
+  console.log("========== DEBUG processUserProfile ==========");
   try {
     if (err) {
       console.error("Erro na autenticação SAML:", err);
       req.flash("error", "Erro na autenticação SAML");
+      console.log(
+        "========== FIM DEBUG processUserProfile (erro SAML) =========="
+      );
       return res.redirect("/auth/login");
     }
 
     if (!profile) {
       console.error("Perfil SAML não encontrado:", info);
       req.flash("error", "Não foi possível autenticar via SSO");
+      console.log(
+        "========== FIM DEBUG processUserProfile (sem perfil) =========="
+      );
       return res.redirect("/auth/login");
     }
 
     // Extrai os dados do perfil SAML
     const email = profile.email || profile.nameID;
     const name = profile.displayName || profile.nameID;
+    console.log("Email extraído:", email);
+    console.log("Nome extraído:", name);
 
     // Busca o usuário ou cria um novo se não existir
     let user = await User.findOne({ email }).populate("group");
+    console.log("Usuário encontrado no banco:", user ? "Sim" : "Não");
 
     if (!user) {
-      // Cria um novo usuário automaticamente (pode ser modificado conforme necessário)
+      console.log("Criando novo usuário para login SAML");
+      // Procura um grupo padrão para usuários via SSO
+      let defaultGroup;
+
+      // Se o perfil tiver um grupo especificado, tenta encontrá-lo primeiro
+      if (profile.group) {
+        console.log("Buscando grupo do perfil:", profile.group);
+        defaultGroup = await Group.findOne({ name: profile.group });
+      }
+
+      // Se não tiver grupo no perfil ou não encontrou o grupo, busca pelo grupo "Administração" que é criado pelo init-db.js
+      if (!defaultGroup) {
+        console.log("Buscando grupo padrão 'Administração'");
+        defaultGroup = await Group.findOne({ name: "Administração" });
+      }
+
+      // Se ainda não encontrou nenhum grupo, busca qualquer grupo ativo
+      if (!defaultGroup) {
+        console.log("Buscando qualquer grupo ativo");
+        defaultGroup = await Group.findOne({ active: true });
+      }
+
+      // Se não encontrou nenhum grupo, registra erro e redireciona
+      if (!defaultGroup) {
+        console.error(
+          "Não foi possível encontrar um grupo para associar ao usuário SSO"
+        );
+        req.flash(
+          "error",
+          "Erro interno: não foi possível associar grupo ao usuário"
+        );
+        console.log(
+          "========== FIM DEBUG processUserProfile (sem grupo) =========="
+        );
+        return res.redirect("/auth/login");
+      }
+
+      console.log("Grupo encontrado:", defaultGroup.name);
+
+      // Cria um novo usuário automaticamente com o grupo padrão
       user = new User({
         name: name,
         email: email,
         password: Math.random().toString(36).slice(-10), // Senha aleatória
         role: "user", // Define o papel padrão
+        group: defaultGroup._id,
         active: true,
       });
 
-      // Se o perfil tiver um grupo, tenta associar
-      if (profile.group) {
-        const group = await Group.findOne({ name: profile.group });
-        if (group) {
-          user.group = group._id;
-          user.role = group.defaultRole || "user";
-        }
+      // Atualiza o papel do usuário se o grupo tiver papel padrão
+      if (defaultGroup.defaultRole) {
+        user.role = defaultGroup.defaultRole;
+        console.log("Papel do usuário definido para:", user.role);
       }
 
       await user.save();
+      console.log(
+        `Novo usuário ${email} criado via SSO e associado ao grupo ${defaultGroup.name}`
+      );
     }
 
     // Verifica se o usuário está ativo
     if (!user.active) {
+      console.log("Usuário desativado, bloqueando acesso");
       req.flash(
         "error",
         "Usuário desativado, entre em contato com o administrador"
       );
+      console.log(
+        "========== FIM DEBUG processUserProfile (usuário inativo) =========="
+      );
       return res.redirect("/auth/login");
     }
 
+    console.log("Gerando token JWT para o usuário");
     // Gera o token JWT
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -131,18 +205,63 @@ const processUserProfile = async (req, res, err, profile, info) => {
       { expiresIn: "24h" }
     );
 
-    // Armazena o usuário e o token na sessão
+    console.log("Buscando usuário completo com grupo populado");
+    // Em vez de chamar diretamente a função processLogin, vamos fazer o que ela faria
+    // mas adequado para o fluxo SAML com redirecionamento
+
+    // Buscar o usuário completo com o grupo populado
+    const completeUser = await User.findById(user._id).populate("group");
+    console.log("Usuário completo encontrado:", !!completeUser);
+
+    console.log("Armazenando usuário e token na sessão");
+    // Armazena o usuário completo e o token na sessão
+    req.session.user = completeUser || user;
     req.session.token = token;
+
+    console.log("Sessão após atribuição:");
+    console.log("- user._id:", req.session.user._id);
+    console.log("- user.email:", req.session.user.email);
+    console.log("- user.role:", req.session.user.role);
+    console.log(
+      "- user.group:",
+      req.session.user.group
+        ? req.session.user.group._id || req.session.user.group
+        : "Nenhum"
+    );
+    console.log("- token existe:", !!req.session.token);
 
     // Atualiza o último login
     user.lastLogin = new Date();
     await user.save();
+    console.log("Último login atualizado");
 
+    // Registra a autenticação no log
     console.log(`Usuário ${user.email} autenticado via SAML`);
-    return res.redirect("/dashboard");
+
+    // Salva a sessão explicitamente antes de redirecionar
+    req.session.save((err) => {
+      if (err) {
+        console.error("Erro ao salvar sessão:", err);
+        req.flash("error", "Erro ao finalizar login");
+        console.log(
+          "========== FIM DEBUG processUserProfile (erro ao salvar sessão) =========="
+        );
+        return res.redirect("/auth/login");
+      }
+
+      console.log("Sessão salva com sucesso");
+      console.log("Redirecionando para /dashboard");
+      console.log(
+        "========== FIM DEBUG processUserProfile (sucesso) =========="
+      );
+
+      // Redireciona para o dashboard
+      return res.redirect("/dashboard");
+    });
   } catch (error) {
     console.error("Erro ao processar perfil do usuário:", error);
     req.flash("error", "Erro ao processar perfil do usuário");
+    console.log("========== FIM DEBUG processUserProfile (erro) ==========");
     return res.redirect("/auth/login");
   }
 };

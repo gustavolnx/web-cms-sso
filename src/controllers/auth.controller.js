@@ -153,23 +153,70 @@ const changePassword = async (req, res) => {
  * Processa o login e armazena o usuário na sessão
  */
 const processLogin = async (req, res) => {
+  console.log("========== DEBUG processLogin ==========");
   try {
     const { token, user } = req.body;
 
+    console.log("Token recebido:", !!token);
+    console.log("Usuário recebido:", !!user);
+
+    if (user) {
+      console.log("ID do usuário:", user._id);
+      console.log("Email do usuário:", user.email);
+    }
+
     // Buscar o usuário completo com o grupo populado
+    console.log("Buscando usuário completo no banco de dados");
     const completeUser = await User.findById(user._id).populate("group");
+    console.log("Usuário completo encontrado:", !!completeUser);
+
+    if (completeUser) {
+      console.log("ID do usuário completo:", completeUser._id);
+      console.log("Email do usuário completo:", completeUser.email);
+      console.log(
+        "Grupo do usuário:",
+        completeUser.group ? completeUser.group.name : "Nenhum"
+      );
+    }
 
     // Armazena o usuário completo e o token na sessão
+    console.log("Armazenando na sessão...");
     req.session.user = completeUser || user;
     req.session.token = token;
 
-    // Redireciona para o dashboard
-    res.status(200).json({
-      success: true,
-      message: "Login processado com sucesso",
-      redirectTo: "/dashboard",
+    console.log("Sessão após atribuição:");
+    console.log("- user._id:", req.session.user._id);
+    console.log("- user.email:", req.session.user.email);
+    console.log("- token existe:", !!req.session.token);
+
+    // Salvando a sessão explicitamente antes de responder
+    req.session.save((err) => {
+      if (err) {
+        console.error("Erro ao salvar sessão:", err);
+        console.log(
+          "========== FIM DEBUG processLogin (erro ao salvar sessão) =========="
+        );
+        return res.status(500).json({
+          success: false,
+          message: "Erro ao salvar sessão",
+          error:
+            process.env.NODE_ENV === "development" ? err.message : undefined,
+        });
+      }
+
+      console.log("Sessão salva com sucesso");
+      console.log("========== FIM DEBUG processLogin (sucesso) ==========");
+
+      // Redireciona para o dashboard
+      res.status(200).json({
+        success: true,
+        message: "Login processado com sucesso",
+        redirectTo: "/dashboard",
+      });
     });
   } catch (error) {
+    console.error("Erro ao processar login:", error);
+    console.log("========== FIM DEBUG processLogin (erro) ==========");
     res.status(500).json({
       success: false,
       message: "Erro ao processar login",

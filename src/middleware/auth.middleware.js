@@ -97,8 +97,24 @@ const sameGroupOrAdmin = async (req, res, next) => {
  */
 const webAuth = async (req, res, next) => {
   try {
-    // Verifica se o usuário está na sessão
+    console.log("========== DEBUG webAuth ==========");
+    console.log("URL acessada:", req.originalUrl);
+    console.log("Método HTTP:", req.method);
+    console.log("Sessão existe:", !!req.session);
+    console.log("Token na sessão:", !!req.session.token);
+    console.log("Usuário na sessão:", !!req.session.user);
+
     if (req.session.user) {
+      console.log("ID do usuário:", req.session.user._id);
+      console.log("Email do usuário:", req.session.user.email);
+      console.log("Papel do usuário:", req.session.user.role);
+      console.log(
+        "Grupo do usuário:",
+        req.session.user.group
+          ? req.session.user.group._id || req.session.user.group
+          : "Nenhum"
+      );
+
       // Define req.user para uso nas rotas
       req.user = req.session.user;
 
@@ -108,19 +124,28 @@ const webAuth = async (req, res, next) => {
         if (req.user.group) {
           const groupId = req.user.group._id || req.user.group;
           req.user.groups = [groupId.toString()];
+          console.log("Grupos do usuário (criado):", req.user.groups);
         } else {
           // Se não tiver grupo, inicialize como array vazio
           req.user.groups = [];
+          console.log("Grupos do usuário (vazio):", req.user.groups);
         }
+      } else {
+        console.log("Grupos do usuário (existente):", req.user.groups);
       }
 
+      console.log("Autenticação bem-sucedida, prosseguindo para a rota");
+      console.log("========== FIM DEBUG webAuth ==========");
       return next();
     }
 
     // Se não estiver na sessão, redireciona para a página de login
+    console.log("Usuário não autenticado, redirecionando para login");
+    console.log("========== FIM DEBUG webAuth ==========");
     return res.redirect("/auth/login");
   } catch (error) {
     console.error("Erro no middleware webAuth:", error);
+    console.log("========== FIM DEBUG webAuth COM ERRO ==========");
     return res.redirect("/auth/login");
   }
 };
