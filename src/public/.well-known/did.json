@@ -1,0 +1,42 @@
+{
+  "id": "did:web:cms.combosmart.com",
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    {
+      "@base": "did:web:cms.combosmart.com"
+    }
+  ],
+  "service": [
+    {
+      "id": "#linkeddomains",
+      "type": "LinkedDomains",
+      "serviceEndpoint": {
+        "origins": ["https://cms.combosmart.com/"]
+      }
+    },
+    {
+      "id": "#hub",
+      "type": "IdentityHub",
+      "serviceEndpoint": {
+        "instances": [
+          "https://hub.did.msidentity.com/v1.0/e3f6c015-6519-49b2-811f-1213b4d12135"
+        ]
+      }
+    }
+  ],
+  "verificationMethod": [
+    {
+      "id": "#b507a108f6484a6f8cfba1ed906ec8b5vcSigningKey-1f173",
+      "controller": "did:web:cms.combosmart.com",
+      "type": "JsonWebKey2020",
+      "publicKeyJwk": {
+        "crv": "P-256",
+        "kty": "EC",
+        "x": "_rRX2KaaUAu292lbs3GkXmi5eNpKaNw892ZyABUTF-I",
+        "y": "vVPxvKOFy0POzZ8YxsolX6LaDCgCnJg2LlND-K_hofc"
+      }
+    }
+  ],
+  "authentication": ["#b507a108f6484a6f8cfba1ed906ec8b5vcSigningKey-1f173"],
+  "assertionMethod": ["#b507a108f6484a6f8cfba1ed906ec8b5vcSigningKey-1f173"]
+}

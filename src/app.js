@@ -63,6 +63,11 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
+// Rota específica para a pasta .well-known
+app.use(
+  "/.well-known",
+  express.static(path.join(__dirname, "public", ".well-known"))
+);
 
 // Configuração do express-fileupload
 /*
