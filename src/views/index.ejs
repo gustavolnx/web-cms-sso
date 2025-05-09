@@ -1,99 +1,122 @@
 <div class="row mb-4">
-    <div class="col-12">
-        <div class="jumbotron bg-light p-5 rounded shadow-sm">
-            <h1 class="display-4"><i class="bi bi-play-circle-fill text-primary me-2"></i>CMS Player Gustavo</h1>
-            <p class="lead">Sistema de gerenciamento de conteúdo para o player Gustavo.</p>
-            <hr class="my-4">
-            <p>Gerencie mídias, playlists e players em uma interface moderna e intuitiva.</p>
-            <% if (!locals.user) { %>
-                <a class="btn btn-primary btn-lg" href="/auth/login" role="button">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Entrar no Sistema
-                </a>
-            <% } else { %>
-                <a class="btn btn-primary btn-lg" href="/dashboard" role="button">
-                    <i class="bi bi-speedometer2 me-2"></i>Ir para o Dashboard
-                </a>
-            <% } %>
-        </div>
+  <div class="col-12">
+    <div class="jumbotron bg-light p-5 rounded shadow-sm">
+      <h1 class="display-4">
+        <i class="bi bi-play-circle-fill text-primary me-2"></i>CMS Player
+      </h1>
+      <p class="lead">
+        Sistema de gerenciamento de conteúdo para o player Gustavo.
+      </p>
+      <hr class="my-4" />
+      <p>
+        Gerencie mídias, playlists e players em uma interface moderna e
+        intuitiva.
+      </p>
+      <% if (!locals.user) { %>
+      <a class="btn btn-primary btn-lg" href="/auth/login" role="button">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar no Sistema
+      </a>
+      <% } else { %>
+      <a class="btn btn-primary btn-lg" href="/dashboard" role="button">
+        <i class="bi bi-speedometer2 me-2"></i>Ir para o Dashboard
+      </a>
+      <% } %>
     </div>
+  </div>
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-4 mb-4 mb-md-0">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <i class="bi bi-images text-primary icon-large mb-3"></i>
-                <h5 class="card-title">Biblioteca de Mídias</h5>
-                <p class="card-text">Faça upload e gerencie imagens e vídeos organizados por grupos.</p>
-            </div>
-        </div>
+  <div class="col-md-4 mb-4 mb-md-0">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <i class="bi bi-images text-primary icon-large mb-3"></i>
+        <h5 class="card-title">Biblioteca de Mídias</h5>
+        <p class="card-text">
+          Faça upload e gerencie imagens e vídeos organizados por grupos.
+        </p>
+      </div>
     </div>
-    <div class="col-md-4 mb-4 mb-md-0">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <i class="bi bi-collection-play text-primary icon-large mb-3"></i>
-                <h5 class="card-title">Playlists Personalizadas</h5>
-                <p class="card-text">Crie playlists com ordem e tempo de exibição personalizados.</p>
-            </div>
-        </div>
+  </div>
+  <div class="col-md-4 mb-4 mb-md-0">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <i class="bi bi-collection-play text-primary icon-large mb-3"></i>
+        <h5 class="card-title">Playlists Personalizadas</h5>
+        <p class="card-text">
+          Crie playlists com ordem e tempo de exibição personalizados.
+        </p>
+      </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <i class="bi bi-display text-primary icon-large mb-3"></i>
-                <h5 class="card-title">Gerenciamento de Players</h5>
-                <p class="card-text">Autorize e gerencie players remotamente com facilidade.</p>
-            </div>
-        </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body text-center">
+        <i class="bi bi-display text-primary icon-large mb-3"></i>
+        <h5 class="card-title">Gerenciamento de Players</h5>
+        <p class="card-text">
+          Autorize e gerencie players remotamente com facilidade.
+        </p>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Recursos do Sistema</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex align-items-center">
-                                <i class="bi bi-people-fill text-primary me-3 icon-medium"></i>
-                                <div>
-                                    <h6 class="mb-1">Gerenciamento de Usuários e Grupos</h6>
-                                    <p class="mb-0 text-muted">Controle de acesso baseado em grupos e perfis.</p>
-                                </div>
-                            </li>
-                            <li class="list-group-item d-flex align-items-center">
-                                <i class="bi bi-images text-primary me-3 icon-medium"></i>
-                                <div>
-                                    <h6 class="mb-1">Biblioteca de Mídias</h6>
-                                    <p class="mb-0 text-muted">Upload e organização de imagens e vídeos.</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex align-items-center">
-                                <i class="bi bi-collection-play text-primary me-3 icon-medium"></i>
-                                <div>
-                                    <h6 class="mb-1">Criação de Playlists</h6>
-                                    <p class="mb-0 text-muted">Ordenação e configuração de tempo de exibição.</p>
-                                </div>
-                            </li>
-                            <li class="list-group-item d-flex align-items-center">
-                                <i class="bi bi-display text-primary me-3 icon-medium"></i>
-                                <div>
-                                    <h6 class="mb-1">Autorização de Players</h6>
-                                    <p class="mb-0 text-muted">Registro, autorização e associação com playlists.</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Recursos do Sistema</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex align-items-center">
+                <i class="bi bi-people-fill text-primary me-3 icon-medium"></i>
+                <div>
+                  <h6 class="mb-1">Gerenciamento de Usuários e Grupos</h6>
+                  <p class="mb-0 text-muted">
+                    Controle de acesso baseado em grupos e perfis.
+                  </p>
                 </div>
-            </div>
+              </li>
+              <li class="list-group-item d-flex align-items-center">
+                <i class="bi bi-images text-primary me-3 icon-medium"></i>
+                <div>
+                  <h6 class="mb-1">Biblioteca de Mídias</h6>
+                  <p class="mb-0 text-muted">
+                    Upload e organização de imagens e vídeos.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex align-items-center">
+                <i
+                  class="bi bi-collection-play text-primary me-3 icon-medium"
+                ></i>
+                <div>
+                  <h6 class="mb-1">Criação de Playlists</h6>
+                  <p class="mb-0 text-muted">
+                    Ordenação e configuração de tempo de exibição.
+                  </p>
+                </div>
+              </li>
+              <li class="list-group-item d-flex align-items-center">
+                <i class="bi bi-display text-primary me-3 icon-medium"></i>
+                <div>
+                  <h6 class="mb-1">Autorização de Players</h6>
+                  <p class="mb-0 text-muted">
+                    Registro, autorização e associação com playlists.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
+      </div>
     </div>
-</div> 
+  </div>
+</div>
